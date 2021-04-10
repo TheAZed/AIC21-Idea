@@ -1,10 +1,13 @@
 package client.routing;
 
 import client.World;
+import client.model.Cell;
+import client.model.enums.CellType;
 import client.model.enums.Direction;
 import client.utils.MapMemory;
 import client.utils.Point;
 
+import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Set;
 
@@ -12,7 +15,7 @@ public class RoutingEngine {
     private final MapMemory mapMemory;
     private final RouteFinder routeFinder;
     private RoutingState currentState;
-    private Queue<Point> currentRoute;
+    private Queue<Point> currentRoute =  new LinkedList<>();
     private Point currentTarget;
     private World currentWorld;
 
@@ -51,6 +54,10 @@ public class RoutingEngine {
                 };
                 TargetCheckRule targetCheckRule = node -> {
                     Point pos = node.getSelfPos();
+                    Cell cell = mapMemory.getCell(pos);
+                    if (cell.getType() == CellType.WALL || cell.getType() == null) {
+                        return false;
+                    }
                     Set<Point> border = mapMemory.getUnknownBorder();
                     int viewDist = world.getAnt().getViewDistance();
                     for (Point point : border) {
@@ -68,8 +75,13 @@ public class RoutingEngine {
                     System.err.println(e.getMessage());
                     return Direction.CENTER;
                 }
+                currentRoute.poll();
                 Point nextPoint = currentRoute.poll();
-                return getDirection(nextPoint);
+                if (nextPoint == null)
+                    return Direction.CENTER;
+                Direction direction = getDirection(nextPoint);
+                System.out.println("Direction" + direction + " Next point: " + nextPoint + " Route: " + currentRoute);
+                return direction;
             default:
                 return Direction.CENTER;
         }
@@ -77,17 +89,17 @@ public class RoutingEngine {
 
     private Direction getDirection(Point currentTarget) {
         int x = currentWorld.getAnt().getCurrentX(), y = currentWorld.getAnt().getCurrentY();
-        if (currentTarget == mapMemory.normalizeCoordinates(x + 1, y)) {
+        if (currentTarget.equals(mapMemory.normalizeCoordinates(x + 1, y))) {
             return Direction.RIGHT;
         }
-        if (currentTarget == mapMemory.normalizeCoordinates(x - 1, y)) {
+        if (currentTarget.equals(mapMemory.normalizeCoordinates(x - 1, y))) {
             return Direction.LEFT;
         }
-        if (currentTarget == mapMemory.normalizeCoordinates(x, y + 1)) {
-            return Direction.UP;
-        }
-        if (currentTarget == mapMemory.normalizeCoordinates(x, y - 1)) {
+        if (currentTarget.equals(mapMemory.normalizeCoordinates(x, y + 1))) {
             return Direction.DOWN;
+        }
+        if (currentTarget.equals(mapMemory.normalizeCoordinates(x, y - 1))) {
+            return Direction.UP;
         }
         return Direction.CENTER;
     }

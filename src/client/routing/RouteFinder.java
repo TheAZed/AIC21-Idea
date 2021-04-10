@@ -26,11 +26,15 @@ class RouteFinder {
             RouteNode next = openSet.poll();
             if (targetCheckRule.isTarget(next)) {
                 Queue<Point> route = new LinkedList<>();
+                List<Point> revRoute = new ArrayList<>();
                 RouteNode currentNode = next;
                 do {
-                    route.add(currentNode.getSelfPos());
+                    revRoute.add(currentNode.getSelfPos());
                     currentNode = pointNodeMap.get(currentNode.getParentPos());
                 } while (currentNode != null);
+                for (int i = revRoute.size() - 1; i >= 0 ; i--) {
+                    route.add(revRoute.get(i));
+                }
                 return route;
             }
             List<Point> neighbors = getNodeNeighbors(next);
