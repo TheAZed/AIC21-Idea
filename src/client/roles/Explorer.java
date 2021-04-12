@@ -23,6 +23,9 @@ public class Explorer implements Role {
     public Answer getAnswer(World newWorld) {
         currentWorld = newWorld;
         mapMemory.updateData(newWorld);
+        if (mapMemory.isLastTimeExplored()) {
+            routingEngine.dropCurrentRoute();
+        }
         Direction nextDirection = routingEngine.getNextMove(newWorld);
         return new Answer(nextDirection);
     }

@@ -14,6 +14,7 @@ public class MapMemory {
     private final int width;
     private final int height;
     private final Set<Point> unknownBorder;
+    private boolean lastTimeExplored = false;
 
     public MapMemory(int width, int height) {
         this.width = width;
@@ -28,6 +29,7 @@ public class MapMemory {
     }
 
     public void updateData(World world) {
+        this.lastTimeExplored = false;
         int d = world.getAnt().getViewDistance();
         int currX = world.getAnt().getCurrentX();
         int currY = world.getAnt().getCurrentY();
@@ -46,6 +48,7 @@ public class MapMemory {
         Point normalPoint = normalizeCoordinates(x, y);
         Cell currentCell = getCellNormalized(normalPoint);
         if (currentCell.getType() == null) {
+            this.lastTimeExplored = true;
             unknownBorder.remove(normalPoint);
             getNeighborPoints(normalPoint).forEach(point -> {
                 if (getCellNormalized(point).getType() == null) {
@@ -143,5 +146,9 @@ public class MapMemory {
 
     public Set<Point> getUnknownBorder() {
         return unknownBorder;
+    }
+
+    public boolean isLastTimeExplored() {
+        return lastTimeExplored;
     }
 }

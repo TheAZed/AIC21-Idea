@@ -32,13 +32,18 @@ public class RoutingEngine {
         this.currentState = state;
     }
 
+    public void dropCurrentRoute() {
+        this.currentRoute = new LinkedList<>();
+    }
+
     public Direction getNextMove(World world) {
         currentWorld = world;
         switch (currentState) {
             case EXPLORING:
                 if (!currentRoute.isEmpty()) {
                     Point nextPoint = currentRoute.poll();
-                    return getDirection(nextPoint);
+                    Direction direction =  getDirection(nextPoint);
+                    System.out.println("Route following: point: " + nextPoint + " dir: " + direction + " route: " + currentRoute);
                 }
                 DistScorer distScorer = new DefaultDistScorer();
                 HeuristicScorer heuristicScorer = from -> {
@@ -59,10 +64,9 @@ public class RoutingEngine {
                         return false;
                     }
                     Set<Point> border = mapMemory.getUnknownBorder();
-                    int viewDist = world.getAnt().getViewDistance();
                     for (Point point : border) {
                         int newDist = mapMemory.getDistanceBetweenPoints(pos, point);
-                        if (newDist < viewDist) {
+                        if (newDist <= 1) {
                             return true;
                         }
                     }
