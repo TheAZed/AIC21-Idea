@@ -2,6 +2,7 @@ package client.utils;
 
 import client.World;
 import client.model.Cell;
+import client.model.enums.Direction;
 import client.routing.NullCell;
 
 import java.util.ArrayList;
@@ -44,7 +45,11 @@ public class MapMemory {
         }
     }
 
-    private void updateCell(int x, int y, Cell newCell) {
+    public void updateCell(Point point, Cell newCell) {
+        this.updateCell(point.x, point.y, newCell);
+    }
+
+    public void updateCell(int x, int y, Cell newCell) {
         Point normalPoint = normalizeCoordinates(x, y);
         Cell currentCell = getCellNormalized(normalPoint);
         if (currentCell.getType() == null) {
@@ -130,6 +135,39 @@ public class MapMemory {
         dist += Math.min(bigX - smallX, width + smallX - bigX);
         dist += Math.min(bigY - smallY, height + smallY - bigY);
         return dist;
+    }
+
+    public List<Point> getBorderPointsForDirection(Point center, Direction direction, int viewRange) {
+        List<Point> points = new ArrayList<>();
+        int centerX = center.x, centerY = center.y;
+        switch (direction) {  // These depend of MapMemory#updateData format
+            case RIGHT:
+                for (int x = 0; x < viewRange; x++) {
+                    points.add(normalizeCoordinates(centerX + x, centerY + viewRange - x));
+                    points.add(normalizeCoordinates(centerX + x, centerY - viewRange + x));
+                }
+                points.add(normalizeCoordinates(centerX + viewRange, centerY));
+                return points;
+            case UP:
+                for (int x = -viewRange; x <= viewRange; x++) {
+                    points.add(normalizeCoordinates(centerX + x, centerY + viewRange - Math.abs(x)));
+                }
+                return points;
+            case LEFT:
+                points.add(normalizeCoordinates(centerX - viewRange, centerY));
+                for (int x = -viewRange + 1; x <= 0; x++) {
+                    points.add(normalizeCoordinates(centerX + x, centerY + viewRange + x));
+                    points.add(normalizeCoordinates(centerX + x, centerY - viewRange - x));
+                }
+                return points;
+            case DOWN:
+                for (int x = -viewRange; x <= viewRange; x++) {
+                    points.add(normalizeCoordinates(centerX + x, centerY - viewRange + Math.abs(x)));
+                }
+                return points;
+            default:
+                return points;
+        }
     }
 
     public int getWidth() {

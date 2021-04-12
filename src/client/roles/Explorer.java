@@ -7,7 +7,7 @@ import client.routing.RoutingEngine;
 import client.routing.RoutingState;
 import client.utils.MapMemory;
 
-public class Explorer implements Role {
+public class Explorer implements Roles {
     private World currentWorld;
     private final MapMemory mapMemory;
     private final RoutingEngine routingEngine;
